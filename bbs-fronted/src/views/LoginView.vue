@@ -6,7 +6,7 @@
         <div class="login-logo-box">
           <el-icon :size="40"><EditPen /></el-icon>
         </div>
-        <h1 class="login-title">{{ isRegister ? 'JOIN US' : 'WELCOME BACK' }}</h1>
+        <h1 class="login-title">WELCOME BACK</h1>
       </div>
 
       <!-- Form -->
@@ -39,28 +39,14 @@
           />
         </el-form-item>
 
-        <el-form-item v-if="isRegister" prop="confirmPassword">
-          <label class="custom-label">CONFIRM</label>
-          <el-input
-            v-model="form.confirmPassword"
-            type="password"
-            placeholder="TYPE IT AGAIN"
-            show-password
-            :prefix-icon="Lock"
-          />
-        </el-form-item>
-
         <button class="submit-btn" :disabled="submitting">
-          {{ submitting ? 'WAIT...' : (isRegister ? 'REGISTER' : 'LOGIN') }}
+          {{ submitting ? 'WAIT...' : 'LOGIN' }}
         </button>
       </el-form>
 
-      <!-- Toggle -->
+      <!-- Toggle (Removed/Commented or replaced with simple footer) -->
       <div class="login-footer">
-        <p>{{ isRegister ? 'ALREADY A MEMBER?' : 'NEW HERE?' }}</p>
-        <a href="#" class="toggle-link" @click.prevent="toggleMode">
-          {{ isRegister ? 'LOGIN NOW' : 'CREATE ACCOUNT' }}
-        </a>
+        <p>INVITE ONLY</p>
       </div>
     </div>
     
@@ -82,22 +68,12 @@ const route = useRoute()
 const userStore = useUserStore()
 
 const formRef = ref(null)
-const isRegister = ref(false)
 const submitting = ref(false)
 
 const form = reactive({
   email: '',
   password: '',
-  confirmPassword: '',
 })
-
-const validateConfirm = (rule, value, callback) => {
-  if (isRegister.value && value !== form.password) {
-    callback(new Error('Passwords do not match'))
-  } else {
-    callback()
-  }
-}
 
 const rules = {
   email: [
@@ -108,15 +84,6 @@ const rules = {
     { required: true, message: 'Password required', trigger: 'blur' },
     { min: 6, message: 'Min 6 chars', trigger: 'blur' },
   ],
-  confirmPassword: [
-    { required: true, message: 'Confirm password', trigger: 'blur' },
-    { validator: validateConfirm, trigger: 'blur' },
-  ],
-}
-
-function toggleMode() {
-  isRegister.value = !isRegister.value
-  formRef.value?.resetFields()
 }
 
 async function handleSubmit() {
@@ -125,16 +92,10 @@ async function handleSubmit() {
 
   submitting.value = true
   try {
-    if (isRegister.value) {
-      await userStore.register(form.email, form.password)
-      ElMessage.success('Check your email!')
-      isRegister.value = false
-    } else {
-      await userStore.login(form.email, form.password)
-      ElMessage.success('Welcome back!')
-      const redirect = route.query.redirect || '/'
-      router.push(redirect)
-    }
+    await userStore.login(form.email, form.password)
+    ElMessage.success('Welcome back!')
+    const redirect = route.query.redirect || '/'
+    router.push(redirect)
   } catch (error) {
     ElMessage.error(error.message || 'Action failed')
   } finally {
