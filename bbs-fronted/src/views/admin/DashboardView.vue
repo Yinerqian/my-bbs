@@ -96,7 +96,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onActivated } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../../supabase'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -202,6 +202,7 @@ function formatDate(dateStr) {
 }
 
 onMounted(fetchPosts)
+onActivated(fetchPosts)
 </script>
 
 <style scoped>
